@@ -92,21 +92,7 @@ const consultarCelUsuario = async (id_usuario) => {
     return respuesta;
 };
 
-/**
- * @description Almacena la información de un usuario en la base de datos.
- * @param {Object} usuario 
- * @returns 
- */
-const guardarUsuario = async (usuario) => {
-    
-    let sql = `INSERT INTO public."Usuarios"(
-            documento, nombre, id_rol, celular,correo, contrasena)
-            VALUES ($1, $2, $3, $4, $5, $6);`;
-    let valores = [usuario.documento, usuario.nombre,
-                    usuario.id_rol, usuario.celular, 
-                    usuario.correo, usuario.contrasena];
-    let respuesta = await _servicio.ejecutarSql(sql, valores);
-};
+
 
 /**
  * @description Modifica la información de un usuario.
@@ -162,5 +148,5 @@ const guardarUsuario = async (usuario) => {
 };
 
 module.exports = {validarUsuario, consultarUsuario, consultarUsuarios,
-     consultarCelUsuario, consultarUsuariosNombreyId ,editarContrasena,
-     guardarUsuario, editarUsuario, eliminarUsuario};
+    consultarCelUsuario, consultarUsuariosNombreyId ,editarContrasena,
+    editarUsuario, eliminarUsuario};

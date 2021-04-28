@@ -1,3 +1,4 @@
+require('dotenv').config();
 const ServicePg = require('../services/postgress');
 const _service = new ServicePg();
 const jwt = require('jsonwebtoken');
@@ -37,19 +38,47 @@ const jwt = require('jsonwebtoken');
     return respuesta;
   };
 
-  let generar_token = (usuario) => {
-    delete usuario.contrasena;
-    let token = jwt.sign(usuario, process.env.SECRET_KEY, { expiresIn: "4h" });
-    return token;
-  };
-  //$2b$10$mYT5TaQ42MaBmV0PZqFXDebpaoYFOguOHbQdCw/2ve0My4ipcrZau
+  /**
+ * @description Almacena la información de un usuario en la base de datos.
+ * @param {Object} usuario 
+ * @returns 
+ */
+const guardarUsuario = async (usuario) => {
+    
+  let sql = `INSERT INTO public."Usuarios"(documento, nombre, id_rol, celular,correo, contrasena)
+              select $1, $2,$3, $4,$5, $6
+              where not exists(select documento from public."Usuarios" where documento = $1);`;
+  let valores = [usuario.documento, usuario.nombre,
+                  usuario.id_rol, usuario.celular, 
+                  usuario.correo, usuario.contrasena];
+  let respuesta = await _service.ejecutarSql(sql, valores);
+  return respuesta.rowCount;
+};
 
-  let descifrar_token = (token) => {
+
+const generar_token = (usuario) => {
+    //delete usuario.contrasena;
+    return jwt.sign(usuario, process.env.SECRET_KEY, { expiresIn: "4h" });
+ 
+  };
+
+const descifrar_token = (token) => {
     return jwt.decode(token, process.env.SECRET_KEY);
   };
-  let validar_token = (token) => {
-    return jwt.verify(token, process.env.SECRET_KEY);
+
+const validar_token = (token, roles) => {
+    return jwt.verify(token, process.env.SECRET_KEY, (err, decoded)=>{
+      //Reurns de JWT error
+      if(err) return err;
+     
+      //console.log(decoded.nombre_rol);
+       if (token && roles.includes(decoded.nombre_rol)) {
+          //Confirma que el token es válido 
+          return true;
+       }else{
+          return false;
+       }
+    });
   };
 module.exports = {
-  validarUsuario, generar_token, descifrar_token, validar_token, validarLogin
-}
+  validarUsuario, generar_token, descifrar_token, validar_token, validarLogin, guardarUsuario}
