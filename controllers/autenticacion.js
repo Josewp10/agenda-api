@@ -8,7 +8,7 @@ const jwt = require('jsonwebtoken');
   *  - Que contenga el e-mail y la contraseña
   * @param {Object} usuario 
   */
-  let validarUsuario = (usuario) => {
+  let validarLogin = (usuario) => {
     if (!usuario) {
         throw {
           ok: false,
@@ -25,14 +25,15 @@ const jwt = require('jsonwebtoken');
 
   /**
  * @description Verifica si hay un usuario registrado en la base de dados
- * @param {Object} usuario
+ * @param {String} correo
  * @returns
  */
-   let consultarUsuario = async (usuario) => {
-    
-    let sql = `SELECT correo, contrasena FROM public."Usuarios" WHERE correo = $1 AND contrasena = md5($2)`;
-    let valores = [usuario.correo, usuario.contrasena]
-    let respuesta = await _service.ejecutarSql(sql, valores);
+   let validarUsuario = async (correo) => {    
+    let sql = `SELECT correo, nombre_rol, contrasena 
+              FROM public."Usuarios" inner join public."Roles"
+                on "Usuarios".id_rol = "Roles".id_rol
+              WHERE correo = $1;`;
+    let respuesta = await _service.ejecutarSql(sql, [correo]);    
     return respuesta;
   };
 
@@ -41,7 +42,8 @@ const jwt = require('jsonwebtoken');
     let token = jwt.sign(usuario, process.env.SECRET_KEY, { expiresIn: "4h" });
     return token;
   };
-  
+  //$2b$10$mYT5TaQ42MaBmV0PZqFXDebpaoYFOguOHbQdCw/2ve0My4ipcrZau
+
   let descifrar_token = (token) => {
     return jwt.decode(token, process.env.SECRET_KEY);
   };
@@ -49,5 +51,5 @@ const jwt = require('jsonwebtoken');
     return jwt.verify(token, process.env.SECRET_KEY);
   };
 module.exports = {
-  validarUsuario
+  validarUsuario, generar_token, descifrar_token, validar_token, validarLogin
 }

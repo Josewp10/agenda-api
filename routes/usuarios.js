@@ -7,9 +7,9 @@ const express = require('express');
 const router = express.Router();
 const bcrypt =require('bcrypt');
 const _controlador = require('../controllers/usuarios');
+const auth = require('../middleware/autorizacion');
 
-
-router.get('/usuarios', async (req, res) => {
+router.get('/usuarios', auth.prueba(), async (req, res) => {
 
   _controlador
     .consultarUsuarios()
