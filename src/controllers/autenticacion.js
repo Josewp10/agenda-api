@@ -30,7 +30,7 @@ const jwt = require('jsonwebtoken');
  * @returns
  */
    let validarUsuario = async (correo) => {    
-    let sql = `SELECT correo, nombre_rol, contrasena 
+    let sql = `SELECT documento, nombre_rol, contrasena 
               FROM public."Usuarios" inner join public."Roles"
                 on "Usuarios".id_rol = "Roles".id_rol
               WHERE correo = $1;`;
@@ -57,7 +57,7 @@ const guardarUsuario = async (usuario) => {
 
 
 const generar_token = (usuario) => {
-    //delete usuario.contrasena;
+    delete usuario.contrasena;
     return jwt.sign(usuario, process.env.SECRET_KEY, { expiresIn: "4h" });
  
   };
@@ -66,19 +66,8 @@ const descifrar_token = (token) => {
     return jwt.decode(token, process.env.SECRET_KEY);
   };
 
-const validar_token = (token, roles) => {
-    return jwt.verify(token, process.env.SECRET_KEY, (err, decoded)=>{
-      //Reurns de JWT error
-      if(err) return err;
-     
-      //console.log(decoded.nombre_rol);
-       if (token && roles.includes(decoded.nombre_rol)) {
-          //Confirma que el token es válido 
-          return true;
-       }else{
-          return false;
-       }
-    });
+const validar_token = (token) => {
+    return jwt.verify(token, process.env.SECRET_KEY);
   };
 module.exports = {
   validarUsuario, generar_token, descifrar_token, validar_token, validarLogin, guardarUsuario}

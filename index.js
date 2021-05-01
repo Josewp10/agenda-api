@@ -12,10 +12,13 @@ app.get('/', (req,res) =>{
     res.send('Bienvenido!!');
 });
 
-const ruta_autenticacion = require('./routes/autenticacion');
+//const ruta_errores = require('./src/middleware/manejoErrores');
+
+
+const ruta_autenticacion = require('./src/routes/autenticacion');
 app.use(ruta_autenticacion);
 
-const ruta_usuarios = require('./routes/usuarios');
+const ruta_usuarios = require('./src/routes/usuarios');
 app.use(ruta_usuarios);
 
 

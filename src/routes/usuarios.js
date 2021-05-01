@@ -7,12 +7,11 @@ const express = require('express');
 const router = express.Router();
 const bcrypt =require('bcrypt');
 const _controlador = require('../controllers/usuarios');
-const auth = require('../middleware/autorizacion');
-const roles = require('../controllers/roles');
+const {authModificacion, auth} = require('../middleware/autorizacion');
+const {roles} = require('../models/roles');
 
 
-
-router.get('/usuarios', auth.prueba('admin'), async (req, res) => {
+router.get('/usuarios', auth(roles.admin), async (req, res) => {
   
   _controlador
     .consultarUsuarios()
@@ -26,8 +25,8 @@ router.get('/usuarios', auth.prueba('admin'), async (req, res) => {
   });
 
 
-  router.get('/usuarios/:id_usuario', async (req, res) => {
-    let id = req.params.id_usuario;
+router.get('/usuarios/:id_usuario', authModificacion(roles.admin, roles.usuario), async (req, res) => {
+        let id = req.params.id_usuario;
         
         if (id==='idnombre') {
           _controlador
@@ -52,8 +51,8 @@ router.get('/usuarios', auth.prueba('admin'), async (req, res) => {
         }
     });
 
-  //Consulta del celular por usuario
-  router.get('/usuarios/celular/:id_usuario', async (req, res) => {
+//Consulta del celular por usuario
+router.get('/usuarios/celular/:id_usuario', authModificacion(roles.admin, roles.usuario), async (req, res) => {
     let id = req.params.id_usuario;
 
     _controlador
@@ -73,7 +72,7 @@ router.get('/usuarios', auth.prueba('admin'), async (req, res) => {
  * Cuerpo: Vacío
  * Respuesta: Usuario eliminado o mensaje de error
  */
- router.delete("/usuarios/:id_usuario", (req, res) => {
+ router.delete("/usuarios/:id_usuario",auth(roles.admin), (req, res) => {
   let id = req.params.id_usuario;
 
   _controlador
@@ -94,7 +93,7 @@ router.get('/usuarios', auth.prueba('admin'), async (req, res) => {
 * Cuerpo: Todos los datos del usuario
 * Respuesta: Usuario actualizado o mensaje de error
 */
-router.put("/usuarios/:id_usuario", (req, res) => {
+router.put("/usuarios/:id_usuario",authModificacion(roles.admin, roles.usuario), (req, res) => {
   try {
     //Capturar el body desde la solicitud
     let id_usuario = req.params.id_usuario;
@@ -124,7 +123,7 @@ router.put("/usuarios/:id_usuario", (req, res) => {
 * Cuerpo: id del usuario y nueva contraseña
 * Respuesta: Usuario actualizado o mensaje de error
 */
-router.put("/usuarios/contrasena/:id_usuario",async (req, res) => {
+router.put("/usuarios/contrasena/:id_usuario",authModificacion(roles.admin),async (req, res) => {
   try {
 
     //Se encripta la contraseña usando bcrypt

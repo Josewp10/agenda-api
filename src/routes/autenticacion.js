@@ -31,7 +31,6 @@ router.use((req, res, next) => {
     });
   }
 });*/
-  
 
  /**
  * Petición: Validar usuario
